@@ -7,6 +7,7 @@
 //
 
 #import "WBStatusCell.h"
+#import "WBStatusHelper.h"
 
 
 @implementation WBStatusTitleView
@@ -104,6 +105,117 @@
     [self addSubview:_sourceLabel];
     return self;
 }
+
+- (void)setVerifyType:(WBUserVerifyType)verifyType
+{
+    _verifyType = verifyType;
+    switch (verifyType) {
+        case WBUserVerifyTypeStandard:{
+            _avatarBadgeView.hidden = NO;
+            _avatarBadgeView.image = [WBStatusHelper imageNamed:@"avatar_vip"];
+        }
+            break;
+            
+        case WBUserVerifyTypeOrganization:{
+            
+            _avatarBadgeView.hidden = NO;
+            _avatarBadgeView.image = [WBStatusHelper imageNamed:@"avatar_grassroot"];
+            
+        }
+            break;
+            
+        default:{
+            _avatarBadgeView.hidden = YES;
+        }
+            break;
+    }
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    _trackingTouch = NO;
+    UITouch *t = touches.anyObject;
+    CGPoint p = [t locationInView:_avatarView];
+    if (CGRectContainsPoint(_avatarView.bounds, p)) {
+        _trackingTouch = YES;
+    }
+    p = [t locationInView:_nameLabel];
+    if (CGRectContainsPoint(_nameLabel.bounds, p) && _nameLabel.textLayout.textBoundingRect.size.width > p.x) {
+        _trackingTouch = YES;
+    }
+    
+    if (!_trackingTouch) {
+        [super touchesBegan:touches withEvent:event];
+    }
+}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    if (!_trackingTouch) {
+        [super touchesEnded:touches withEvent:event];
+    }else{
+        if ([_cell.delegate respondsToSelector:@selector(cell:didClickUser:)]) {
+            [_cell.delegate cell:_cell didClickUser:_cell.statusView.layout.status.user];
+        }
+    }
+}
+
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    if (!_trackingTouch) {
+        [super touchesCancelled:touches withEvent:event];
+    }
+}
+
+@end
+
+
+@implementation WBStatusCardView{
+    BOOL _isRetweet;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (frame.size.width == 0 && frame.size.height == 0) {
+        frame.size.width = kScreenWidth;
+        frame.origin.x = kWBCellPadding;
+    }
+    self = [super initWithFrame:frame];
+    self.exclusiveTouch = YES;
+    
+    _imageView = [UIImageView new];
+    _imageView.clipsToBounds = YES;
+    _imageView.contentMode = UIViewContentModeScaleAspectFill;
+    _badgeImageView = [UIImageView new];
+    _badgeImageView.clipsToBounds = YES;
+    _badgeImageView.contentMode = UIViewContentModeScaleAspectFit;
+    _label = [YYLabel new];
+    _label.textVerticalAlignment = YYTextVerticalAlignmentCenter;
+    _label.numberOfLines = 3;
+    _label.ignoreCommonProperties = YES;
+    _label.displaysAsynchronously = YES;
+    _label.fadeOnAsynchronouslyDisplay = NO;
+    _label.fadeOnHighlight = NO;
+    _button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self addSubview:_imageView];
+    [self addSubview:_badgeImageView];
+    [self addSubview:_label];
+    [self addSubview:_button];
+    self.backgroundColor = kWBCellInnerViewColor;
+    self.layer.borderWidth = CGFloatFromPixel(1);
+    self.layer.borderColor = [UIColor colorWithWhite:0.00 alpha:0.070].CGColor;
+    return self;
+}
+
+- (void)setWithLayout:(WBStatusLayout *)layout isRetweet:(BOOL)isRetweet
+{
+    WBPageInfo *pageIno = isRetweet ? layout.status.retweetedStatus.pageInfo : layout.status.pageInfo;
+    if(!pageIno) return;
+    self.height = isRetweet ? layout.retweetCardHeight : layout.cardHeight;
+}
+
+
+
 
 
 @end

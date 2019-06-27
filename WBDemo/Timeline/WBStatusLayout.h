@@ -8,6 +8,8 @@
 
 #import "YYKit.h"
 #import "WBModel.h"
+#import "WBStatus.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,11 +23,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 #define kWBCellLineColor [UIColor colorWithWhite:0.00 alpha:0.09] //线条颜色
 
-
+#define kWBCellInnerViewColor UIColorHex(f7f7f7)
 
 
 
 @interface WBStatusLayout : NSObject
+
+@property(nonatomic, strong) WBStatus *status;
+
+
+
+@property(nonatomic, assign) CGFloat cardHeight;
+@property(nonatomic, assign) CGFloat retweetHeight;
+
+@property(nonatomic, assign) CGFloat retweetCardHeight;
 
 @end
 
